@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Parking Pro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+body{
+    background:#050816;
+    color:white;
+}
+
+.container{
+    display:flex;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:250px;
+    height:100vh;
+    background:#0b1120;
+    padding:20px;
+}
+
+.logo{
+    font-size:28px;
+    color:#361d73;
+    font-weight:bold;
+    margin-bottom:40px;
+}
+
+.menu{
+    list-style:none;
+}
+
+.menu li{
+    padding:15px;
+    margin-bottom:15px;
+    background:#111827;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.menu li:hover{
+    background:#080222;
+}
+
+/* MAIN */
+
+.main{
+    flex:1;
+    padding:20px;
+}
+
+/* HEADER */
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:25px;
+}
+
+.status{
+    background:#205acd;
+    padding:10px 20px;
+    border-radius:30px;
+}
+
+/* CARDS */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.card{
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+.blue{
+    background:#7394da;
+}
+
+.green{
+    background:#63da8f;
+}
+
+.red{
+    background:#c75959;
+}
+
+.purple{
+    background:#bb9ded;
+}
+
+.card h1{
+    margin-top:10px;
+    font-size:35px;
+}
+
+/* DASHBOARD */
+
+.dashboard{
+    margin-top:30px;
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:20px;
+}
+
+/* MAPA */
+
+.map{
+    background:#021542;
+    padding:25px;
+    border-radius:20px;
+}
+
+.parking{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:15px;
+    margin-top:20px;
+}
+
+.slot{
+    height:90px;
+    border-radius:15px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:22px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.slot:hover{
+    transform:scale(1.05);
+}
+
+.free{
+    background:#16a34a;
+}
+
+.occupied{
+    background:#dc2626;
+}
+
+/* CHARTS */
+
+.charts{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.chart-box{
+    background:#0f172a;
+    padding:20px;
+    border-radius:20px;
+}
+
+/* INPUT */
+
+.control{
+    margin-top:30px;
+    background:#0f172a;
+    padding:20px;
+    border-radius:20px;
+}
+
+input{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    margin-top:15px;
+    background:#365daf;
+    color:white;
+    font-size:18px;
+}
+
+button{
+    margin-top:15px;
+    padding:15px;
+    width:100%;
+    border:none;
+    border-radius:10px;
+    background:#9877e5;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.stats{
+    margin-top:20px;
+    font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="sidebar">
+
+<div class="logo">
+SMART PARKING
+</div>
+
+<ul class="menu">
+
+<li>📊 Dashboard</li>
+<li>🅿️ Parqueadero</li>
+<li>📈 Estadísticas</li>
+<li>🚘 Vehículos</li>
+<li>⚙️ Configuración</li>
+
+</ul>
+
+</div>
+
+<div class="main">
+
+<div class="header">
+
+<h1>SMART PARKING IoT</h1>
+
+<div class="status">
+SISTEMA ACTIVO
+</div>
+
+</div>
+
+<div class="cards">
+
+<div class="card blue">
+<h3>Total Espacios</h3>
+<h1>10</h1>
+</div>
+
+<div class="card green">
+<h3>Disponibles</h3>
+<h1 id="disponibles">6</h1>
+</div>
+
+<div class="card red">
+<h3>Ocupados</h3>
+<h1 id="ocupados">4</h1>
+</div>
+
+<div class="card purple">
+<h3>Ingresos</h3>
+<h1>$320K</h1>
+</div>
+
+</div>
+
+<div class="dashboard">
+
+<div class="map">
+
+<h2>MAPA DEL PARQUEADERO</h2>
+
+<div class="parking" id="parking">
+
+<div class="slot free">1</div>
+<div class="slot occupied">2</div>
+<div class="slot free">3</div>
+<div class="slot occupied">4</div>
+<div class="slot free">5</div>
+
+<div class="slot free">6</div>
+<div class="slot occupied">7</div>
+<div class="slot free">8</div>
+<div class="slot free">9</div>
+<div class="slot occupied">10</div>
+
+</div>
+
+</div>
+
+<div class="charts">
+
+<div class="chart-box">
+<canvas id="lineChart"></canvas>
+</div>
+
+<div class="chart-box">
+<canvas id="pieChart"></canvas>
+</div>
+
+</div>
+
+</div>
+
+<div class="control">
+
+<h2>Generar Estadísticas</h2>
+
+<input type="number" id="vehiculos" placeholder="Ingrese cantidad de vehículos">
+
+<button onclick="generar()">Generar Estadística</button>
+
+<div class="stats" id="stats"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+/* MAPEO INTERACTIVO */
+
+const slots=document.querySelectorAll('.slot');
+
+slots.forEach(slot=>{
+
+slot.addEventListener('click',()=>{
+
+if(slot.classList.contains('free')){
+
+slot.classList.remove('free');
+slot.classList.add('occupied');
+
+}else{
+
+slot.classList.remove('occupied');
+slot.classList.add('free');
+
+}
+
+actualizar();
+
+});
+
+});
+
+function actualizar(){
+
+let ocupados=document.querySelectorAll('.occupied').length;
+
+let disponibles=10-ocupados;
+
+document.getElementById('ocupados').innerHTML=ocupados;
+
+document.getElementById('disponibles').innerHTML=disponibles;
+
+pieChart.data.datasets[0].data=[disponibles,ocupados];
+
+pieChart.update();
+
+}
+
+/* GRAFICA LINEAL */
+
+const lineChart=new Chart(
+
+document.getElementById('lineChart'),
+
+{
+type:'line',
+
+data:{
+labels:['8AM','9AM','10AM','11AM','12PM','1PM'],
+
+datasets:[{
+
+label:'Vehículos',
+
+data:[12,19,8,25,18,30],
+
+borderColor:'#8b5cf6',
+
+backgroundColor:'#8b5cf6'
+
+}]
+}
+
+}
+
+);
+
+/* GRAFICA DONUT */
+
+const pieChart=new Chart(
+
+document.getElementById('pieChart'),
+
+{
+type:'doughnut',
+
+data:{
+labels:['Disponibles','Ocupados'],
+
+datasets:[{
+
+data:[6,4],
+
+backgroundColor:[
+'#16a34a',
+'#dc2626'
+]
+
+}]
+}
+
+}
+
+);
+
+/* GENERAR ESTADISTICAS */
+
+function generar(){
+
+let cantidad=document.getElementById('vehiculos').value;
+
+let porcentaje=(cantidad/10)*100;
+
+document.getElementById('stats').innerHTML=`
+
+🚘 Vehículos ingresados: ${cantidad}<br><br>
+
+📈 Ocupación del parqueadero: ${porcentaje}%<br><br>
+
+🅿️ Espacios restantes: ${10-cantidad}
+
+`;
+
+}
+
+</script>
+
+</body>
+</html>
